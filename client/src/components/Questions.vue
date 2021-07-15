@@ -9,6 +9,7 @@
         class="btn btn-success mt-4 btn-lg"
         v-on:click.stop.prevent = startQuest
         >Iniciar</button>
+        <h1>{{this.histAnswes}}</h1>
     </div>
     <transition name="fade">
     <div v-if="this.questStart && this.questFinish == false"
@@ -38,11 +39,18 @@
     <div v-if="this.questFinish" class="container mt-5 text-center">
         <h1>Resultado</h1>
         <h2 class="mt-5">{{result}}</h2>
+        <button
+        type="button"
+        class="btn btn-primary mt-4 btn-lg"
+        v-on:click.stop.prevent = resetQuest
+        >Reiniciar</button>
     </div>
 </div>
 </template>
 
 <script>
+
+import axios from 'axios';
 
 export default {
   data() {
@@ -57,6 +65,7 @@ export default {
       index: 0,
       answers: [],
       result: '',
+      histAnswes: [],
     };
   },
 
@@ -82,6 +91,10 @@ export default {
     },
     questFinished() {
       this.questFinish = true;
+      const payload = {
+        result: this.result,
+      };
+      this.histAnswes.push(payload);
       this.questResult();
     },
     questResult() {
@@ -93,6 +106,8 @@ export default {
       }
       if (answers === 2) {
         this.result = 'Suspeito';
+        this.histAnswes.push(this.result);
+        console.log(this.histAnswes);
       }
       if (answers >= 3 || answers <= 4) {
         this.result = 'Cúmplice';
@@ -100,10 +115,42 @@ export default {
       if (answers === 5) {
         this.result = 'Assassino';
       }
-      if (answers === 0) {
+      if (answers === 0 || answers === 1) {
         this.result = 'Inocente';
       }
+      const path = 'http://localhost:5000/result';
+      const payload = {
+        questions: this.questions,
+        answers: this.answers,
+      };
+      axios.post(path, payload)
+        .then((res) => {
+          this.result = res.data.result;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        });
     },
+    resetQuest() {
+      this.questStart = false;
+      this.questFinish = false;
+      this.index = 0;
+    },
+    getResults() {
+      const path = 'http://localhost:5000/result';
+      axios.get(path)
+        .then((res) => {
+          this.histAnswes = res.data.result;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.error(error);
+        });
+    },
+  },
+  created() {
+    this.getResults();
   },
 };
 </script>
