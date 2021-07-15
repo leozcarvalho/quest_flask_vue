@@ -1,4 +1,5 @@
 <template>
+
 <div class="container">
     <div v-if="this.questStart===false" class="container my-5">
         <h1>Interrogatório Criminal</h1>
@@ -91,14 +92,10 @@ export default {
     },
     questFinished() {
       this.questFinish = true;
-      const payload = {
-        result: this.result,
-      };
-      this.histAnswes.push(payload);
       this.questResult();
     },
     questResult() {
-      let answers = 0;
+    /* let answers = 0;
       let aux = this.answers.indexOf('sim');
       while (aux !== -1) {
         answers += 1;
@@ -117,7 +114,7 @@ export default {
       }
       if (answers === 0 || answers === 1) {
         this.result = 'Inocente';
-      }
+      } */
       const path = 'http://localhost:5000/result';
       const payload = {
         questions: this.questions,
@@ -136,6 +133,9 @@ export default {
       this.questStart = false;
       this.questFinish = false;
       this.index = 0;
+      for (let i = this.answers.length; i > 0; i -= 1) {
+        this.answers.pop();
+      }
     },
     getResults() {
       const path = 'http://localhost:5000/result';

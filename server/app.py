@@ -3,7 +3,6 @@ from flask_cors import CORS
 
 RESULTS = [
 {
-    #'name': 'Ubaldo',
     #'answers': ["sim", "nao", "nao", "nao", "nao"],
     'result': 'Inocente'
 }
@@ -26,7 +25,21 @@ def get_result():
 def set_result():
     post_data = request.get_json()
     answers = post_data['answers']
-    result = 'Assassino'
+
+    yesAnswers = answers.count('sim')
+
+    if yesAnswers == 0:
+        result = 'Inocente'
+
+    if yesAnswers == 2:
+        result = 'Suspeito'
+    
+    if yesAnswers >= 3 and yesAnswers <= 4:
+        result = 'Cúmplice'
+
+    if yesAnswers == 5:
+        result = 'Assassino'
+
     response_object = {'result': result}
     return jsonify(response_object)
 
